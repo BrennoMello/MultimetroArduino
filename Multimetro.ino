@@ -19,7 +19,7 @@ Adafruit_ADS1115 Ads1115;
 //Operações enviadas pelo APP
 char funcionalidade = 'T';
 
-//Fator utilizado para conversão da tensão ?
+//Fator utilizado para conversão da tensão
 float fatorConversaoTensao=0.0019974364;
 
 //Fator de conversão para Corrente
@@ -103,30 +103,26 @@ void loop() {
           if(tensao>43.92 || tensao< -43.92){
               Ads1115.setGain(GAIN_TWOTHIRDS);
               fatorConversaoTensao=0.0020105899;
-          }else{
-            if(tensao>21.96 || tensao < -21.96){
+          }else if(tensao>21.96 || tensao < -21.96){
               Ads1115.setGain(GAIN_ONE);
               fatorConversaoTensao=0.0013403729;
-            }else{
-              if(tensao>10.98 || tensao< -10.98){
-                Ads1115.setGain(GAIN_TWO);
-                fatorConversaoTensao=0.000683;
-              }else{
-                if(tensao>5.49 || tensao< -5.49){
-                  Ads1115.setGain(GAIN_FOUR);
-                  fatorConversaoTensao=0.000345;
-                }else{
-                  if(tensao>2.74 || tensao< -2.74){
-                    Ads1115.setGain(GAIN_EIGHT);
-                    fatorConversaoTensao=0.00018;
-                  }else{
-                    Ads1115.setGain(GAIN_SIXTEEN);
-                    fatorConversaoTensao=0.00009;
-                  }
-                }
-              }
-            }
+          }else if(tensao>10.98 || tensao< -10.98){
+              Ads1115.setGain(GAIN_TWO);
+              fatorConversaoTensao=0.000679;
+          }else if(tensao>5.49 || tensao< -5.49){
+              Ads1115.setGain(GAIN_FOUR);
+              fatorConversaoTensao=0.000342;
+          }else if(tensao>2.74 || tensao< -2.74){
+              Ads1115.setGain(GAIN_EIGHT);
+              fatorConversaoTensao=0.000175;
+          }else{
+              Ads1115.setGain(GAIN_SIXTEEN);
+              fatorConversaoTensao=0.000088;
           }
+                
+              
+            
+          
         acumulador=0;
         for(int i=0; i<10; i++){
           leituraTensao = Ads1115.readADC_SingleEnded(0); 
@@ -136,7 +132,15 @@ void loop() {
         leituraTensao = acumulador/10;
            
         tensao = leituraTensao*fatorConversaoTensao;
-    
+
+        if(tensao>0){
+          if(tensao<0.0100){ 
+            tensao = 0.0000;
+          }  
+        }else if(tensao>-0.0100){   
+                tensao = 0.0000;
+        }
+        
           Bluetooth.print('&');
           Bluetooth.print('T');
           Bluetooth.print('#');
@@ -192,12 +196,12 @@ void loop() {
                 
         Serial.print("\tValor inteiro = ");
         Serial.print(valorLidoACS712,4);
-        
-        valorLidoACS712 =   valorLidoACS712 - tensaoReferenciaACS712;
-                
+                     
+        valorLidoACS712 =  valorLidoACS712 - (tensaoReferenciaACS712 - 0.0047);
+
         Serial.print("\tValor inteiro subtracao = ");
         Serial.print(valorLidoACS712, 4);
-         
+        
         
         corrente = valorLidoACS712/0.066;
         
@@ -226,8 +230,8 @@ void loop() {
         digitalWrite(portaRele1, LOW);
         estadoRele1 = true;
       }  
-    //fazer escala
-    //Tensao negativa?
+
+
     Ads1115.setGain(GAIN_TWOTHIRDS);
     fatorConversaoTensaoResistencia = 0.0001875057;
     leituraVCC =  Ads1115.readADC_SingleEnded(1)*fatorConversaoTensaoResistencia;
@@ -270,7 +274,7 @@ void loop() {
       //r1=993 
       resistencia = (leituraVout*993)/(leituraVCC-leituraVout);
       
-      if(resistencia<10 || resistencia>10000)
+      if(resistencia<10 || resistencia>10500)
         resistencia = 0.0000;
       
       //Zerar leitura fora da faixa

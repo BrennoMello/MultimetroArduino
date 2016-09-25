@@ -153,7 +153,7 @@ void loop() {
           Serial.println(tensao,4);
                    
           
-          //talvez no final  
+          
           delay(1000);
           
       break;
@@ -216,7 +216,7 @@ void loop() {
           Serial.print("\tResultado = ");      
           Serial.println(corrente, 4);
           
-          //talvez no final
+          
           delay(1000);
 
           
@@ -277,7 +277,7 @@ void loop() {
       if(resistencia<10 || resistencia>10500)
         resistencia = 0.0000;
       
-      //Zerar leitura fora da faixa
+      
       Bluetooth.print('&');
       Bluetooth.print('R');
       Bluetooth.print('#');
